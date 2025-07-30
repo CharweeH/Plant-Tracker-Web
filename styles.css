@@ -148,10 +148,6 @@ body {
             gap: 1px;             /* Set space between items (adjust as needed) */
         }
 
-        li {
-            /* Optional: Add a small margin to individual items if needed */
-        }
-
         li a {
             display: block;
             color: rgb(0, 0, 0);
