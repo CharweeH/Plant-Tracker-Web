@@ -1,0 +1,196 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;             /* Use flexbox for layout */
+            flex-direction: column;    /* Stack elements vertically */
+            align-items: center;       /* Center content horizontally */
+            height: 100vh;             /* Make body take full viewport height */
+            width: 100vw;              /* Make body take full viewport width */
+            background-color: #f0f0f0; /* Light background color */
+}
+
+        h1 {
+            color: #2d5a2d;
+            text-align: center;
+        }
+
+        .add-plant {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input {
+            width: 200px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .plant {
+            background-color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .plant-info {
+            flex: 1;
+        }
+
+        .plant-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d5a2d;
+        }
+
+        .last-watered {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .water-button {
+            background-color: #2196F3;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+
+        .water-button:hover {
+            background-color: #1976D2;
+        }
+
+        .edit-button {
+            background-color: #ff9800;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+
+        .edit-button:hover {
+            background-color: #f57c00;
+        }
+
+        .notes-button {
+            background-color: #ec6496;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+
+        .notes-button:hover {
+            background-color: #ec6496;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+        nav {
+            padding: 0;
+            position: sticky; /* Sticky positioning */
+            top: 0; /* Stick to the top */
+            z-index: 1000; /* Ensure the sticky element stays above other content */;
+        }               
+
+       ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 5px;
+            background-color: #4CAF50;
+            position: sticky; /* Sticky positioning */
+            top: 0; /* Stick to the top */
+            z-index: 1000; /* Ensure the sticky element stays above other content */
+            width: 100vw;
+            display: flex;         /* Use flexbox layout for inline items */
+            justify-content: flex-start;  /* Align items to the left */
+            gap: 1px;             /* Set space between items (adjust as needed) */
+        }
+
+        li {
+            /* Optional: Add a small margin to individual items if needed */
+        }
+
+        li a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            margin: 0px;
+            padding: 10px 15px; /* Adjust padding as needed */
+            text-decoration: none;
+            
+        }
+
+        li:first-child {
+            margin-left: 5%;             /* Push the first <li> 10% away from the left */
+        }
+
+        li a:hover {
+            background-color: #00340c;
+            color: whitesmoke;
+        }
+
+        .active {
+            background-color: #aeff00;
+            padding: 10px;
+        }
+
+
+
+        #suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            width: 200px;
+            background-color: white;
+            z-index: 10;
+        }
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
