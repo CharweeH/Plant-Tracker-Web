@@ -61,7 +61,7 @@ const plants = [
     name: 'Chinese Evergreen',
     type: 'Indoor',
     description: 'Chinese Evergreen is a low-maintenance plant that\'s perfect for beginners. It can tolerate low light and requires minimal watering.',
-    image: 'https://www.gardenista.com/wp-content/uploads/2017/02/Chinese-Evergreen.jpg'
+    image: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQN_EoMnv3AfD8X_RKYkYssDcpdSrNQ1AY7bypmWEMcNq2SnMIBTS_LickoXtEa-j1aXm6TS0r9ynw-n-1hvcZuUA'
   },
   {
     name: 'Bamboo Palm',
