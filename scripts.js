@@ -1,4 +1,21 @@
-        // This array will store all our plants
+       // FireStore Setup
+       // Import Firebase SDK modules from the CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+// Your Firebase configuration
+const firebaseConfig = {
+
+};
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+       
+       // This array will store all our plants
         //let myPlants = [];
 
 const existingPlants = ['Aloe Vera', 'Basil', 'Cactus', 'Fern', 'Rose', 'Tulip'];
@@ -40,6 +57,22 @@ const myPlants = [];
       }
     }
 
+    async function loadPlantsFromFirestore() {
+        myPlants.length = 0; // Clear array
+        const querySnapshot = await getDocs(collection(db, "plants"));
+        querySnapshot.forEach((docSnap) => {
+            const plant = docSnap.data();
+            plant.id = docSnap.id;
+            myPlants.push(plant);
+        });
+        showPlants();
+    }
+
+    // Call this when the page loads
+    window.onload = () => {
+        loadPlantsFromFirestore();
+    };
+
         // Function to handle plant selection
         function selectSuggestion(plant) {
             const input = document.getElementById('plantName').value = plant;
@@ -47,90 +80,99 @@ const myPlants = [];
         }
 
         // Function to add a new plant
-        function addPlant() {
-            const plantName = document.getElementById('plantName').value;
-            
-            // Check if the plant name is valid (non-empty)
-            if (plantName.trim() === '') {
-                alert('Please enter a plant name!');
-                return;
-            }
+        async function addPlant() {
+    const plantName = document.getElementById('plantName').value;
 
-            // Check if the plant is already in the list
-            const plantExists = existingPlants.includes(plantName);
-            if (!plantExists) {
-                alert('This plant is not in our suggestions, but we will add it manually!');
-                existingPlants.push(plantName); // Add to suggestions
-            }
+    if (plantName.trim() === '') {
+        alert('Please enter a plant name!');
+        return;
+    }
 
-            // Create a new plant object
-            const newPlant = {
-                name: plantName,
-                lastWatered: 'Never',
-                dateAdded: new Date().toLocaleDateString()
-            };
+    const plantExists = existingPlants.includes(plantName);
+    if (!plantExists) {
+        alert('This plant is not in our suggestions, but we will add it manually!');
+        existingPlants.push(plantName);
+    }
 
-            // Add it to the myPlants array
-            myPlants.push(newPlant);
+    const newPlant = {
+        name: plantName,
+        lastWatered: 'Never',
+        dateAdded: new Date().toLocaleDateString()
+    };
 
-            // Clear the input box
-            document.getElementById('plantName').value = '';
+    try {
+        const docRef = await addDoc(collection(db, "plants"), newPlant);
+        newPlant.id = docRef.id; // Save Firestore document ID
+        myPlants.push(newPlant); // Add to local array
+        console.log("Plant added with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding plant: ", e);
+    }
 
-            // Update display
-            showPlants();
-        }
+    document.getElementById('plantName').value = '';
+    showPlants();
+}
 
         // Function to display added plants
-        function showPlants() {
-            console.log(myPlants); // You can add this to display the plants on the page
-        }
+        //function showPlants() {
+            //console.log(myPlants); // You can add this to display the plants on the page
+        //}
 
         // Function to water a plant
-        function waterPlant(plantIndex) {
-            // Update the last watered date
-            myPlants[plantIndex].lastWatered = new Date().toLocaleDateString();
-            
-            // Update what shows on the page
+        async function waterPlant(plantIndex) {
+            const plant = myPlants[plantIndex];
+            const newDate = new Date().toLocaleDateString();
+            plant.lastWatered = newDate;
+
+            // Update Firestore
+            const docRef = doc(db, "plants", plant.id);
+            await updateDoc(docRef, {
+                lastWatered: newDate
+            });
+
             showPlants();
         }
 
         // Function to delete a plant
-        function deletePlant(plantIndex) {
-            // Ask if they're sure
-            if (confirm('Are you sure you want to delete this plant?')) {
-                // Remove it from the array
-                myPlants.splice(plantIndex, 1);
-                
-                // Update what shows on the page
-                showPlants();
-            }
+        async function deletePlant(plantIndex) {
+            if (!confirm('Are you sure you want to delete this plant?')) return;
+
+            const plant = myPlants[plantIndex];
+            const docRef = doc(db, "plants", plant.id);
+            await deleteDoc(docRef); // Remove from Firestore
+
+            myPlants.splice(plantIndex, 1); // Remove locally
+            showPlants();
         }
 
         // Function to edit plant
-        function editPlant(plantIndex) {
-            // get current name
-            const currentName = myPlants[plantIndex].name;
-            // Ask user for new name (pre-filled with current name)
-            const newName = prompt('Enter new plant name:', currentName);
-    
-    // If they clicked Cancel or entered nothing, don't change anything
-            if (newName === null || newName.trim() === '') {
-                return;
-            }  
-    
-    // Update the plant's name
-            myPlants[plantIndex].name = newName.trim();
-    
-    // Update what shows on the page
+        async function editPlant(plantIndex) {
+            const plant = myPlants[plantIndex];
+            const newName = prompt('Enter new plant name:', plant.name);
+
+            if (!newName || newName.trim() === '') return;
+            plant.name = newName.trim();
+
+            const docRef = doc(db, "plants", plant.id);
+            await updateDoc(docRef, {
+                name: plant.name
+            });
+
             showPlants();
-}
+        }
 
         // function to add notes
 
-        // function to add photos
-        
+        function notesPlant(plantIndex) {
+            const currentNotes = myPlants[plantIndex].notes || '';
+            const newNotes = prompt('Enter notes for this plant:', currentNotes);
+            if (newNotes !== null) {
+                myPlants[plantIndex].notes = newNotes.trim();
+            }
+            showPlants();
+        }
 
-        
+        // function to add photo
 
         // Function to display all plants on the page
         function showPlants() {
@@ -184,3 +226,10 @@ const myPlants = [];
                 addPlant();
             }
         });
+
+window.addPlant = addPlant;
+window.waterPlant = waterPlant;
+window.deletePlant = deletePlant;
+window.editPlant = editPlant;
+window.notesPlant = notesPlant;
+window.showSuggestions = showSuggestions;
