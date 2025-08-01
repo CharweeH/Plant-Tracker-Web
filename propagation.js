@@ -52,38 +52,3 @@ onAuthStateChanged(auth, (user) => {
         }
     }
 });
-
-
-async function loadDirectoryPlants() {
-  const directoryContainer = document.getElementById("plant-directory");
-  directoryContainer.innerHTML = ''; // Clear existing content
-
-  try {
-    const querySnapshot = await getDocs(collection(db, "plants"));
-    
-    if (querySnapshot.empty) {
-      directoryContainer.innerHTML = "<p>No plants found in the directory.</p>";
-      return;
-    }
-
-    querySnapshot.forEach((doc) => {
-      const plant = doc.data();
-
-      const plantCard = document.createElement("div");
-      plantCard.className = "card mb-3 p-3 shadow-sm";
-      plantCard.innerHTML = `
-        ${plant.imageUrl ? `<img src="${plant.imageUrl}" alt="${plant.name}" class="img-fluid mb-2" object-fit: cover;">` : ""}
-        <h3 class="card-title">${plant.name}</h3>
-        ${plant.notes ? `<p><strong>Notes:</strong> ${plant.notes}</p>` : ""}
-      `;
-
-      directoryContainer.appendChild(plantCard);
-    });
-
-  } catch (error) {
-    console.error("Error loading plant directory:", error);
-    directoryContainer.innerHTML = "<p>Error loading plants.</p>";
-  }
-}
-
-window.addEventListener('DOMContentLoaded', loadDirectoryPlants);

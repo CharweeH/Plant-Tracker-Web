@@ -1,0 +1,265 @@
+ // Plants Directory Script
+        // This array will store all our plants 
+
+        // Array of house plant data
+const plants = [
+  {
+    name: 'Spider Plant',
+    type: 'Indoor',
+    description: 'The Spider Plant is a low-maintenance, air-purifying plant that thrives in indirect light and requires moderate watering.',
+    image: 'https://plus.unsplash.com/premium_photo-1664543258866-f1362a2c7195?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3BpZGVyJTIwcGxhbnR8ZW58MHx8MHx8fDA%3D'
+  },
+  {
+    name: 'Snake Plant',
+    type: 'Indoor',
+    description: 'Snake plants are known for their upright, sword-like leaves. They can tolerate low light and irregular watering.',
+    image: 'https://plus.unsplash.com/premium_photo-1673969608395-9281e5e4395f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c25ha2UlMjBwbGFudHxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Fiddle Leaf Fig',
+    type: 'Indoor',
+    description: 'Fiddle Leaf Figs have large, glossy leaves that make a statement in any room. They thrive in bright, indirect light and need regular watering.',
+    image: 'https://images.unsplash.com/photo-1545239705-1564e58b9e4a?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZmlkZGxlJTIwbGVhZiUyMGZpZ3xlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Pothos',
+    type: 'Indoor',
+    description: 'Pothos is an adaptable, trailing vine that can grow in various lighting conditions. It\'s perfect for beginners and can thrive in low to bright light.',
+    image: 'https://images.unsplash.com/photo-1596724878582-76f1a8fdc24f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cG90aG9zfGVufDB8fDB8fHww'
+  },
+  {
+    name: 'Peace Lily',
+    type: 'Indoor',
+    description: 'Peace Lilies are well-loved for their white blooms and air-purifying qualities. They thrive in low to medium light and need to be watered regularly.',
+    image: 'https://plus.unsplash.com/premium_photo-1676117273363-2b13dbbc5385?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cGVhY2UlMjBsaWx5fGVufDB8fDB8fHww'
+  },
+  {
+    name: 'ZZ Plant',
+    type: 'Indoor',
+    description: 'ZZ plants are extremely low-maintenance. They can thrive in almost any environment, including low light and infrequent watering.',
+    image: 'https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8enolMjBwbGFudHxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Aloe Vera',
+    type: 'Succulent',
+    description: 'Aloe Vera is not only decorative but also known for its soothing gel, which is used for treating burns and skin irritations. It prefers bright light and dry conditions.',
+    image: 'https://images.unsplash.com/photo-1613372978247-de50228e8033?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YWxvZSUyMHZlcmF8ZW58MHx8MHx8fDA%3D'
+  },
+  {
+    name: 'Monstera Deliciosa',
+    type: 'Indoor',
+    description: 'Known for its unique split leaves, the Monstera is a popular houseplant that can tolerate a variety of lighting conditions but prefers bright, indirect light.',
+    image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8TW9uc3RlcmElMjBkZWxpY2lvc2F8ZW58MHx8MHx8fDA%3D'
+  },
+  {
+    name: 'Gerbera Daisy',
+    type: 'Indoor/Outdoor',
+    description: 'Gerbera Daisies are known for their vibrant, colorful blooms. They do well in bright light and add a pop of color to any space.',
+    image: 'https://images.unsplash.com/photo-1613800172017-6b2b3787fdb8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2VyYmVyYSUyMGRhaXN5fGVufDB8fDB8fHww'
+  },
+  {
+    name: 'Chinese Evergreen',
+    type: 'Indoor',
+    description: 'Chinese Evergreen is a low-maintenance plant that\'s perfect for beginners. It can tolerate low light and requires minimal watering.',
+    image: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQN_EoMnv3AfD8X_RKYkYssDcpdSrNQ1AY7bypmWEMcNq2SnMIBTS_LickoXtEa-j1aXm6TS0r9ynw-n-1hvcZuUA'
+  },
+  {
+    name: 'Bamboo Palm',
+    type: 'Indoor',
+    description: 'Bamboo Palm has slender bamboo-like stems and dark green leaves. It’s an excellent air purifier and does well in low to medium light.',
+    image: 'https://media.istockphoto.com/id/1225189610/photo/bamboo-palm-growing-in-a-pot-decorative-indoor-plant.jpg?s=612x612&w=is&k=20&c=HeN5RWmkbpSa7ugqYQHPlew9L4dc9-RjFD72WcJoI4o='
+  },
+  {
+    name: 'English Ivy',
+    type: 'Indoor/Outdoor',
+    description: 'English Ivy is a hardy vine that can be grown in both indoor and outdoor settings. It thrives in cool, moist environments and needs regular watering.',
+    image: 'https://images.unsplash.com/photo-1657401923955-efe43f7d1196?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZW5nbGlzaCUyMGl2eXxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Dracaena',
+    type: 'Indoor',
+    description: 'Dracaena plants are easy to care for and can grow in low light. They are ideal for brightening up any room with their tall, sleek appearance.',
+    image: 'https://www.ikea.com/gb/en/images/products/dracaena-marginata-potted-plant-dragon-tree-4-stem__1334408_pe946782_s5.jpg?f=s'
+  },
+  {
+    name: 'Rubber Plant',
+    type: 'Indoor',
+    description: 'Rubber plants have large, glossy leaves and are perfect for adding a bold statement to any room. They thrive in bright, indirect light and require moderate watering.',
+    image: 'https://images.unsplash.com/photo-1669392597221-bbfd4b6e13ff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cnViYmVyJTIwcGxhbnR8ZW58MHx8MHx8fDA%3D'
+  },
+  {
+    name: 'Cast Iron Plant',
+    type: 'Indoor',
+    description: 'Cast Iron plants are extremely hardy and can survive in low light, low humidity, and even neglectful care. They are perfect for beginners.',
+    image: 'https://images.unsplash.com/photo-1521208140295-4cf4d8f90c74?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2FzdCUyMGlyb24lMjBwbGFudHxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Areca Palm',
+    type: 'Indoor',
+    description: 'Areca Palms have feathery, arching fronds and thrive in bright, indirect light. They require moderate watering and make a beautiful addition to any room.',
+    image: 'https://images.unsplash.com/photo-1630565945904-7e4220cadd0e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXJlY2ElMjBwbGFudHxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Hoya (Wax Plant)',
+    type: 'Indoor',
+    description: 'Hoya plants are known for their thick, waxy leaves and fragrant flowers. They thrive in bright, indirect light and require little maintenance.',
+    image: 'https://images.unsplash.com/photo-1640039985592-df9c2e3f2605?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG95YXxlbnwwfHwwfHx8MA%3D%3D'
+  },
+  {
+    name: 'Calathea',
+    type: 'Indoor',
+    description: 'Calatheas are known for their stunning, patterned leaves. They thrive in indirect light and require consistent moisture and humidity.',
+    image: 'https://images.unsplash.com/photo-1596724878443-2b4069812ff5?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2FsYXRoZWF8ZW58MHx8MHx8fDA%3D'
+  },
+  {
+    name: 'Bird of Paradise',
+    type: 'Indoor',
+    description: 'Bird of Paradise plants are known for their large, exotic leaves and can bloom into beautiful flowers when well-cared for. They need bright light and regular watering.',
+    image: 'https://images.unsplash.com/photo-1631122751597-cdc5d56d561e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmlyZCUyMG9mJTIwcGFyYWRpc2V8ZW58MHx8MHx8fDA%3D'
+  }
+];
+
+// Function to display the plants
+function displayPlants() {
+  const plantDirectory = document.getElementById('plant-directory');
+  plantDirectory.innerHTML = ''; // Clear the existing content
+
+  plants.forEach(plant => {
+    // Create plant card element
+    const plantCard = document.createElement('div');
+    plantCard.classList.add('plant-card');
+
+    // Create the image element
+    const plantImage = document.createElement('img');
+    plantImage.src = plant.image;
+    plantImage.alt = plant.name;
+
+    // Set the image size to a percentage (e.g., 50% width of the container)
+    plantImage.style.width = '50%';  // Set width as 50% of its parent container
+    plantImage.style.height = 'auto';  // Maintain the aspect ratio
+
+    // Add content to the plant card
+    plantCard.innerHTML = `
+      <h3>${plant.name}</h3>
+      <p><strong>Type:</strong> ${plant.type}</p>
+      <p><strong>Description:</strong> ${plant.description}</p>
+    `;
+
+    // Append the image first, followed by the plant details
+    plantCard.insertBefore(plantImage, plantCard.firstChild);
+
+    // Append the plant card to the directory
+    plantDirectory.appendChild(plantCard);
+  });
+}
+
+// Call displayPlants when the DOM content is loaded
+document.addEventListener("DOMContentLoaded", displayPlants);
+
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+    <div class="container mt-5 position-relative">
+       <div class="text-center mb-4"></div>
+      <div class="d-flex justify-content-end align-items-center mb-4">
+        <h1 class="position-absolute start-50 translate-middle-x display-4 m-0">🌱 My Plant Tracker</h1>
+        <a href="authentication.html" class="btn btn-primary login" role="button">
+          <i class="bi bi-person-circle"></i> Login / Register
+        </a>
+      </div>
+    </div>
+
+
+<a href="authentication.html" class="btn btn-primary login" role="button">
+          <i class="bi bi-person-circle"></i> Login / Register
+        </a>
+
+
+
+----------------------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>title</title>
+    <!-- Firebase App (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <!-- Firebase Auth (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- FirebaseUI (v6) -->
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="display-4">🌱 My Plant Tracker</h1>
+        </div>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top rounded" style="background-color: #f68cb3">
+        <div class="container-fluid">
+  <a class="navbar-brand" href="index.html">🌱 My Plant Tracker</a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link"  href="index.html"><i class="bi bi-house-heart"></i> Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="plantdirectory.html"><i class="bi bi-flower1"></i> Plant Directory</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="propagating.html"><i class="fi fi-rr-hand-holding-seeding"></i> Propagating</a>
+        </li>
+        </ul>
+    </div>
+    </nav>
+    <div id="authStatus">Not signed in</div>
+
+    <button id="btnSignInGoogle" onclick="signInWithGoogle()">Sign in with Google</button>
+    <button id="btnSignOut" onclick="signOutUser()" style="display:none;">Sign Out</button>
+
+<!-- Email login form -->
+<div id="formContainer" style="position: relative;">
+  <div id="emailLoginForm" class="form-fade">
+  <h3>Email Log In</h3>
+  <input type="email" id="loginEmail" placeholder="Email" />
+  <input type="password" id="loginPassword" placeholder="Password" />
+  <button onclick="logInWithEmail()">Log In</button>
+  <p><a href="#" onclick="showSignUp()">Create an account</a></p>
+</div>
+
+<!-- Email sign-up form -->
+<div id="emailSignUpForm" class="form-fade hidden">
+  <h3>Sign Up</h3>
+  <input type="email" id="signUpEmail" placeholder="Email" />
+  <input type="password" id="signUpPassword" placeholder="Password" />
+  <button onclick="signUpWithEmail()">Sign Up</button>
+  <p><a href="#" onclick="showLogin()">Already have an account?</a></p>
+</div>
+
+  <!-- Footer -->
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <small class="text-muted">
+                Uicons by <a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener">Flaticon</a>
+            </small>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="login.js"></script>
+</body>
+</html>

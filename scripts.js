@@ -1,235 +1,479 @@
-       // FireStore Setup
-       // Import Firebase SDK modules from the CDN
+// Firestore Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-// Your Firebase configuration
+
 const firebaseConfig = {
-
+  apiKey: "AIzaSyAIujG1gUO5qvKVfkRS6T-cKiOqjdV66v4",
+  authDomain: "plant-tracker-web-app.firebaseapp.com",
+  projectId: "plant-tracker-web-app",
+  storageBucket: "plant-tracker-web-app.firebasestorage.app",
+  messagingSenderId: "329956447825",
+  appId: "1:329956447825:web:87243bf5d32b46ae59ca70",
+  measurementId: "G-C2WDWKXK5M"
 };
 
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
-       
-       // This array will store all our plants
-        //let myPlants = [];
+const auth = getAuth(app);
+const authButtonContainer = document.getElementById('authButtonContainer');
 
-const existingPlants = ['Aloe Vera', 'Basil', 'Cactus', 'Fern', 'Rose', 'Tulip'];
+
+async function fetchPlantsFromFirestore() {
+  const querySnapshot = await getDocs(collection(db, 'plants'));
+  // Return an array of objects like { name, imageUrl }
+  return querySnapshot.docs
+    .map(doc => {
+      const data = doc.data();
+      return {
+        name: data.name,
+        imageUrl: data.imageUrl || '', // make sure you have this field in Firestore
+      };
+    })
+    .filter(plant => typeof plant.name === 'string' && plant.name.trim() !== '');
+}
+
 const myPlants = [];
 
-        // Function to show suggestions
-    function showSuggestions() {
-        const input = document.getElementById('plantName');
-        const suggestionBox = document.getElementById('suggestions');
-        const query = input.value.toLowerCase();
-            
-            // Clear previous suggestions
-        suggestionBox.innerHTML = '';
-            
-        if (query === '') {
-            suggestionBox.style.display = 'none';
-            return;
-        }
-            
-            // Filter existing plants based on user input
-        const filteredPlants = existingPlants.filter(plant => plant.toLowerCase().includes(query));
+onAuthStateChanged(auth, (user) => {
+    const authButtonContainer = document.getElementById('authButtonContainer');
 
-         // If there are no suggestions, hide the suggestion box
-        if (filteredPlants.length === 0) {
-            suggestionBox.style.display = 'none';
-        } else {
-            // Show the suggestion box
-            suggestionBox.style.display = 'block';
-        
-            
-            // Display suggestions
-        filteredPlants.forEach(plant => {
-            const suggestionItem = document.createElement('div');
-            suggestionItem.classList.add('suggestion-item');
-            suggestionItem.textContent = plant;
-            suggestionItem.onclick = () => selectSuggestion(plant);
-             suggestionBox.appendChild(suggestionItem);
-         });
-      }
-    }
+    if (user) {
+        console.log("User signed in:", user.uid);
 
-    async function loadPlantsFromFirestore() {
-        myPlants.length = 0; // Clear array
-        const querySnapshot = await getDocs(collection(db, "plants"));
-        querySnapshot.forEach((docSnap) => {
-            const plant = docSnap.data();
-            plant.id = docSnap.id;
-            myPlants.push(plant);
+        // ✅ Update button to "Sign Out"
+        authButtonContainer.innerHTML = `
+            <button class="btn btn-outline-danger" id="signOutBtn">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </button>
+        `;
+
+        document.getElementById('signOutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("User signed out");
+            } catch (error) {
+                console.error("Sign-out error:", error);
+            }
         });
+
+        // ✅ Load plants
+        loadPlantsFromFirestore();
+    } else {
+        console.log("User signed out");
+
+        // ✅ Update button to "Login / Register"
+        if (authButtonContainer) {
+            authButtonContainer.innerHTML = `
+                <a href="authentication.html" class="btn btn-primary">
+                    <i class="bi bi-person-heart"></i> Login / Register
+                </a>
+            `;
+        }
+
+        myPlants.length = 0;
         showPlants();
     }
+});
 
-    // Call this when the page loads
-    window.onload = () => {
-        loadPlantsFromFirestore();
-    };
+// Escape HTML to avoid XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-        // Function to handle plant selection
-        function selectSuggestion(plant) {
-            const input = document.getElementById('plantName').value = plant;
-            const suggestionBox = document.getElementById('suggestions').innerHTML = ''; // Clear suggestions
-        }
+// Show suggestions under input
+async function showSuggestions() {
+  const existingPlants = await fetchPlantsFromFirestore(); // array of {name, imageUrl}
+  const inputElem = document.getElementById('plantName');
+  const suggestionBox = document.getElementById('suggestions');
+  const query = inputElem.value.toLowerCase();
 
-        // Function to add a new plant
-        async function addPlant() {
-    const plantName = document.getElementById('plantName').value;
+  const filteredPlants = existingPlants.filter(plant => 
+    plant.name.toLowerCase().includes(query)
+  );
 
-    if (plantName.trim() === '') {
-        alert('Please enter a plant name!');
-        return;
-    }
+  suggestionBox.innerHTML = '';
 
-    const plantExists = existingPlants.includes(plantName);
-    if (!plantExists) {
-        alert('This plant is not in our suggestions, but we will add it manually!');
-        existingPlants.push(plantName);
-    }
+  if (!query || filteredPlants.length === 0) {
+    suggestionBox.style.display = 'none';
+    return;
+  }
 
-    const newPlant = {
-        name: plantName,
-        lastWatered: 'Never',
-        dateAdded: new Date().toLocaleDateString()
-    };
+  suggestionBox.style.display = 'block';
 
-    try {
-        const docRef = await addDoc(collection(db, "plants"), newPlant);
-        newPlant.id = docRef.id; // Save Firestore document ID
-        myPlants.push(newPlant); // Add to local array
-        console.log("Plant added with ID: ", docRef.id);
-    } catch (e) {
-        console.error("Error adding plant: ", e);
-    }
+  filteredPlants.forEach(plant => {
+    const suggestionItem = document.createElement('div');
+    suggestionItem.classList.add('suggestion-item');
+    suggestionItem.textContent = plant.name;
+    suggestionItem.onclick = () => selectSuggestion(plant);
+    suggestionBox.appendChild(suggestionItem);
+  });
+}
 
-    document.getElementById('plantName').value = '';
+// Select a suggestion to input field
+let selectedPlant = null;
+
+function selectSuggestion(plant) {
+  selectedPlant = plant; // Save selected plant object with imageUrl
+  document.getElementById('plantName').value = plant.name;
+  const suggestionBox = document.getElementById('suggestions');
+  suggestionBox.innerHTML = '';
+  suggestionBox.style.display = 'none';
+}
+
+// Load plants from Firestore to local array, then show
+async function loadPlantsFromFirestore() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    myPlants.length = 0;
+    const querySnapshot = await getDocs(collection(db, "users", user.uid, "plants"));
+    querySnapshot.forEach(docSnap => {
+        const plant = docSnap.data();
+        plant.id = docSnap.id;
+        myPlants.push(plant);
+    });
     showPlants();
 }
 
-        // Function to display added plants
-        //function showPlants() {
-            //console.log(myPlants); // You can add this to display the plants on the page
-        //}
+// Notifications here maybe?
 
-        // Function to water a plant
-        async function waterPlant(plantIndex) {
-            const plant = myPlants[plantIndex];
-            const newDate = new Date().toLocaleDateString();
-            plant.lastWatered = newDate;
+function addNotification(message) {
+    const list = document.getElementById('notificationList');
+    const item = document.createElement('li');
+    item.className = 'list-group-item';
+    item.textContent = message;
+    list.prepend(item);
+}
 
-            // Update Firestore
-            const docRef = doc(db, "plants", plant.id);
-            await updateDoc(docRef, {
-                lastWatered: newDate
-            });
+// Example usage
+// addNotification("Don't forget to water your Fern!");
 
-            showPlants();
+
+// Add a new plant, save to Firestore, update local & UI
+async function addPlant() {
+  const plantName = document.getElementById('plantName').value.trim();
+  const user = auth.currentUser;
+  if (!user) return await showAlert('You must be signed in.');
+
+  if (!plantName) {
+    await showAlert('Please enter a plant name!');
+    return;
+  }
+
+  // Fetch existing plants from Firestore for validation
+  const existingPlantsData = await fetchPlantsFromFirestore();
+  const existingPlantNames = existingPlantsData.map(p => p.name.toLowerCase());
+
+  if (!existingPlantNames.includes(plantName.toLowerCase())) {
+    await showAlert('This plant is not in our suggestions, but will be added manually!');
+    // You don't need to push here because existingPlantsData is local inside this function
+  }
+
+
+  // Use selectedPlant object if it matches the input
+  let imageUrl = '';
+  if (selectedPlant && selectedPlant.name.toLowerCase() === plantName.toLowerCase()) {
+    imageUrl = selectedPlant.imageUrl || '';
+  }
+
+  // If you want, you can still handle manual additions here (when no image available)
+
+  const newPlant = {
+    name: plantName,
+    lastWatered: 'Never',
+    dateAdded: new Date().toLocaleDateString(),
+    notes: '',
+    imageUrl: imageUrl // add this new field
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, "users", user.uid, "plants"), newPlant);
+    newPlant.id = docRef.id;
+    myPlants.push(newPlant);
+    selectedPlant = null; // reset selection
+    document.getElementById('plantName').value = '';
+    showPlants();
+  } catch (e) {
+    console.error('Error adding plant:', e);
+    await showAlert('Failed to add plant. Please try again.');
+  }
+}
+
+
+// Update lastWatered date in Firestore & local
+async function waterPlant(index) {
+    const plant = myPlants[index];
+    const newDate = new Date().toLocaleDateString();
+
+    try {
+        const user = auth.currentUser;
+        const docRef = doc(db, "users", user.uid, "plants", plant.id);
+        await updateDoc(docRef, { lastWatered: newDate });
+        plant.lastWatered = newDate;
+        showPlants();
+    } catch (e) {
+        console.error('Error updating plant:', e);
+        await showAlert('Failed to update watering date.');
+    }
+}
+
+// Delete plant from Firestore & local, update UI
+async function deletePlant(index) {
+    const confirmed = await showConfirm(`Are you sure you want to delete "${myPlants[index].name}"?`);
+    if (!confirmed) return;
+
+    try {
+        const plant = myPlants[index];
+        const user = auth.currentUser;
+const docRef = doc(db, "users", user.uid, "plants", plant.id);
+        await deleteDoc(docRef);
+        myPlants.splice(index, 1);
+        showPlants();
+    } catch (e) {
+        console.error('Error deleting plant:', e);
+        await showAlert('Failed to delete plant.');
+    }
+}
+
+// Edit plant name, update Firestore & local array
+async function editPlant(index) {
+    const plant = myPlants[index];
+    const newName = await showPrompt('Enter new plant name:', plant.name);
+
+    if (!newName || newName.trim() === '') return;
+
+    const trimmedName = newName.trim();
+
+    // Avoid duplicates
+   // if (myPlants.some((p, i) => i !== index && p.name.toLowerCase() === trimmedName.toLowerCase())) {
+       // alert('Another plant with this name already exists!');
+       // return;
+    //}
+
+    try {
+        const user = auth.currentUser;
+        const docRef = doc(db, "users", user.uid, "plants", plant.id);
+       await updateDoc(docRef, { name: trimmedName });
+       plant.name = trimmedName;
+       showPlants();
+    } catch (e) {
+        console.error('Error editing plant:', e);
+        await showAlert('Failed to edit plant name.');
+    }
+}
+
+async function notesPlant(index) {
+    const plant = myPlants[index];
+    const currentNotes = plant.notes || '';
+    const newNotes = await showNotes(`Enter notes for ${plant.name}:`, currentNotes);
+
+    if (newNotes === null) {
+        console.log('Note edit cancelled');
+        return;
+    }
+
+    const trimmedNotes = newNotes.trim();
+
+    if (trimmedNotes === currentNotes.trim()) {
+        console.log('Notes unchanged, skipping update');
+        return;
+    }
+
+    try {
+        const user = auth.currentUser;
+        const docRef = doc(db, "users", user.uid, "plants", plant.id);
+        console.log('Saving notes for plant ID:', plant.id, 'Notes:', trimmedNotes);
+        await updateDoc(docRef, { notes: trimmedNotes });
+        plant.notes = trimmedNotes;
+        showPlants();
+        console.log('Notes updated successfully');
+    } catch (e) {
+        console.error('Error updating notes:', e);
+        await showAlert('Failed to update notes.');
+    }
+}
+
+// Render plants list on page
+function showPlants() {
+  const plantList = document.getElementById('plantList');
+
+  if (myPlants.length === 0) {
+    plantList.innerHTML = `
+      <div class="empty-message">
+          No plants yet! Add your first plant above.
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  myPlants.forEach((plant, index) => {
+    const wateredToday = plant.lastWatered === new Date().toLocaleDateString();
+    html += `
+      <div class="plant">
+        ${plant.imageUrl ? `<img src="${plant.imageUrl}" alt="${escapeHtml(plant.name)}" class="plant-image">` : ''}
+        <div class="plant-info">
+          <div class="plant-name">${escapeHtml(plant.name)}</div>
+          <div class="last-watered">Last watered: ${escapeHtml(plant.lastWatered)}${wateredToday ? ' 💧 (Today)' : ''}</div>
+          ${plant.notes ? `<div class="notes">Notes: ${escapeHtml(plant.notes)}</div>` : ''}
+        </div>
+        <div class="plant-actions">
+          <button onclick="waterPlant(${index})"><i class="fi fi-sr-watering-can-plant"></i> Water</button>
+          <button onclick="notesPlant(${index})"><i class="bi bi-book-fill"></i> Notes</button>
+          <button onclick="editPlant(${index})"><i class="bi bi-pencil-fill"></i> Edit</button>
+          <button onclick="deletePlant(${index})"><i class="bi bi-trash-fill"></i> Delete</button>
+        </div>
+      </div>
+    `;
+  });
+  plantList.innerHTML = html;
+}
+
+// Event Listeners after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    loadPlantsFromFirestore();
+
+    document.getElementById('plantName').addEventListener('input', showSuggestions);
+    document.getElementById('plantName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addPlant();
         }
+    });
 
-        // Function to delete a plant
-        async function deletePlant(plantIndex) {
-            if (!confirm('Are you sure you want to delete this plant?')) return;
-
-            const plant = myPlants[plantIndex];
-            const docRef = doc(db, "plants", plant.id);
-            await deleteDoc(docRef); // Remove from Firestore
-
-            myPlants.splice(plantIndex, 1); // Remove locally
-            showPlants();
+    // Hide suggestions when clicking outside input or suggestions
+    document.addEventListener('click', (event) => {
+        const input = document.getElementById('plantName');
+        const suggestions = document.getElementById('suggestions');
+        if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+            suggestions.style.display = 'none';
         }
+    });
+});
 
-        // Function to edit plant
-        async function editPlant(plantIndex) {
-            const plant = myPlants[plantIndex];
-            const newName = prompt('Enter new plant name:', plant.name);
+function showAlert(message) {
+    return new Promise((resolve) => {
+        document.getElementById('alertModalMessage').textContent = message;
 
-            if (!newName || newName.trim() === '') return;
-            plant.name = newName.trim();
+        const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+        modal.show();
 
-            const docRef = doc(db, "plants", plant.id);
-            await updateDoc(docRef, {
-                name: plant.name
-            });
+        const button = document.querySelector('#alertModal .btn-primary');
+        const handler = () => {
+            button.removeEventListener('click', handler);
+            resolve();
+        };
 
-            showPlants();
-        }
+        button.addEventListener('click', handler);
+    });
+}
 
-        // function to add notes
+let confirmResolve;
 
-        function notesPlant(plantIndex) {
-            const currentNotes = myPlants[plantIndex].notes || '';
-            const newNotes = prompt('Enter notes for this plant:', currentNotes);
-            if (newNotes !== null) {
-                myPlants[plantIndex].notes = newNotes.trim();
-            }
-            showPlants();
-        }
+function showConfirm(message) {
+    return new Promise((resolve) => {
+        document.getElementById('confirmModalMessage').textContent = message;
+        confirmResolve = resolve;
 
-        // function to add photo
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    });
+}
 
-        // Function to display all plants on the page
-        function showPlants() {
-            const plantList = document.getElementById('plantList');
-            
-            // If no plants, show empty message
-            if (myPlants.length === 0) {
-                plantList.innerHTML = `
-                    <div class="empty-message">
-                        No plants yet! Add your first plant above.
-                    </div>
-                `;
-                return;
-            }
+function resolveConfirm(choice) {
+    confirmResolve?.(choice);
+    confirmResolve = null;
 
-            // Build HTML for all plants
-            let html = '';
-            for (let i = 0; i < myPlants.length; i++) {
-                const plant = myPlants[i];
-                html += `
-                    <div class="plant">
-                        <div class="plant-info">
-                            <div class="plant-name">${plant.name}</div>
-                            <div class="last-watered">Last watered: ${plant.lastWatered}</div>
-                        </div>
-                        <div>
-                            <button class="water-button" onclick="waterPlant(${i})">
-                                💧 Water
-                            </button>
-                            <button class="notes-button" onclick="notesPlant(${i})">
-                                📝 Notes
-                            </button> 
-                            <button class="edit-button" onclick="editPlant(${i})">
-                                ✏️ Edit
-                            </button>
-                            <button class="delete-button" onclick="deletePlant(${i})">
-                                🗑️ Delete
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Put the HTML on the page
-            plantList.innerHTML = html;
-        }
+    // Close modal
+    const modalEl = document.getElementById('confirmModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+}
 
-        // Allow Enter key to add plants
-        document.getElementById('plantName').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                addPlant();
-            }
-        });
+let promptResolve;
 
+function showPrompt(message, defaultValue = '') {
+    return new Promise((resolve) => {
+        document.getElementById('promptModalMessage').textContent = message;
+        document.getElementById('promptInput').value = defaultValue;
+
+        promptResolve = resolve;
+
+        const modal = new bootstrap.Modal(document.getElementById('promptModal'));
+        modal.show();
+    });
+}
+
+function resolvePrompt(cancel = false) {
+    const value = cancel ? null : document.getElementById('promptInput').value;
+
+    // Log to verify value
+    console.log('resolvePrompt returning:', value);
+
+    // Resolve the stored promise
+    if (promptResolve) {
+        promptResolve(value);
+        promptResolve = null;
+    }
+
+    // Close the modal
+    const modalEl = document.getElementById('promptModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+}
+
+let notesResolve;
+
+function showNotes(message, defaultValue = '') {
+    return new Promise((resolve) => {
+        document.getElementById('notesModalMessage').textContent = message;
+        document.getElementById('notesTextarea').value = defaultValue;
+
+        notesResolve = resolve;
+
+        const modal = new bootstrap.Modal(document.getElementById('notesModal'));
+        modal.show();
+    });
+}
+
+function resolveNotes(value = undefined) {
+    const inputValue = document.getElementById('notesTextarea').value;
+
+    // Cancel returns null
+    if (value === null) {
+        notesResolve?.(null);
+    } else {
+        notesResolve?.(inputValue);
+    }
+
+    notesResolve = null;
+
+    // Close modal
+    const modalEl = document.getElementById('notesModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+}
+
+
+
+// Expose functions globally so buttons can call them
 window.addPlant = addPlant;
 window.waterPlant = waterPlant;
 window.deletePlant = deletePlant;
 window.editPlant = editPlant;
 window.notesPlant = notesPlant;
 window.showSuggestions = showSuggestions;
+window.selectSuggestion = selectSuggestion;
+window.resolvePrompt = resolvePrompt;
+window.resolveConfirm = resolveConfirm;
+window.resolveNotes = resolveNotes;
+window.showAlert = showAlert;
+window.showConfirm = showConfirm;
+window.showPrompt = showPrompt;
+window.showNotes = showNotes;

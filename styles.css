@@ -1,192 +1,396 @@
 body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            display: flex;             /* Use flexbox for layout */
-            flex-direction: column;    /* Stack elements vertically */
-            align-items: center;       /* Center content horizontally */
-            height: 100vh;             /* Make body take full viewport height */
-            width: 100vw;              /* Make body take full viewport width */
-            background-color: #f0f0f0; /* Light background color */
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
 }
 
-        h1 {
-            color: #2d5a2d;
-            text-align: center;
-        }
+h1 {
+    color: #2d5a2d;
+    font-family: 'tahoma', sans-serif;
+    white-space: nowrap;         /* Prevents line breaks */
+}
 
-        .add-plant {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+/* Navbar styling */
 
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+.navbar {
+    background-color: #f68cb3 !important;
+}
 
-        input {
-            width: 200px;
-        }
+.navbar-brand {
+    color: #000 !important;
+    font-weight: bold;
+}
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+.navbar-nav .nav-link {
+    color: #000 !important;
+    padding: 10px 15px !important;
+}
 
-        button:hover {
-            background-color: #45a049;
-        }
+.navbar-nav .nav-link:hover {
+    background-color: #f82081;
+    color: whitesmoke !important;
+    border-radius: 5px;
+}
 
-        .plant {
-            background-color: white;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.navbar-nav .nav-link.active {
+    background-color: #f82081 !important;
+    color: #000 !important;
+    border-radius: 5px;
+}
 
-        .plant-info {
-            flex: 1;
-        }
+.nav-link.login {
+    margin-left: auto; /* Pushes the login item to the right */
+    color: #000 !important;
+    padding: 10px 15px !important;
+}
 
-        .plant-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2d5a2d;
-        }
+/* Plant styling */
+/*.plant {
+    background-color: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+} */
 
-        .last-watered {
-            color: #666;
-            font-size: 14px;
-        }
+.plant {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;       /* Set a reasonable max width */
+  margin: 1rem auto;      /* Center and space out */
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
 
-        .water-button {
-            background-color: #2196F3;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin-left: 3px;
-            margin-right: 3px;
-        }
+.plant-info {
+    flex: 1;
+    position: sticky;
+    margin-left: 12.5%;    
+}
 
-        .water-button:hover {
-            background-color: #1976D2;
-        }
+.plant-image {
+  width: 75%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  position: sticky;
+  margin-left: 12.5%;
+}
 
-        .edit-button {
-            background-color: #ff9800;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin-left: 3px;
-            margin-right: 3px;
-        }
+.plant-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d5a2d;
+}
 
-        .edit-button:hover {
-            background-color: #f57c00;
-        }
+.plant-actions{
+    position: sticky;
+    margin-left: 12.5%;    
+}
 
-        .notes-button {
-            background-color: #ec6496;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin-left: 3px;
-            margin-right: 3px;
-        }
+.last-watered {
+    color: #666;
+    font-size: 14px;  
+}
 
-        .notes-button:hover {
-            background-color: #ec6496;
-        }
+/* Button styling - I don't believe the buttons use there anymore */
 
-        .delete-button {
-            background-color: #f44336;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin-left: 3px;
-            margin-right: 3px;
-        }
+.water-button {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+    color: white !important;   
+}
 
-        .delete-button:hover {
-            background-color: #d32f2f;
-        }
+.water-button:hover {
+    background-color: #1976D2 !important;
+    border-color: #1976D2 !important;
+    color: white !important;   
+}
 
-        .empty-message {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 40px;
-        }
-        nav {
-            padding: 0;
-            position: sticky; /* Sticky positioning */
-            top: 0; /* Stick to the top */
-            z-index: 1000; /* Ensure the sticky element stays above other content */;
-        }               
+.edit-button {
+    background-color: #ff9800 !important;
+    border-color: #ff9800 !important;
+    color: white !important;   
+}
 
-       ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 5px;
-            background-color: #4CAF50;
-            position: sticky; /* Sticky positioning */
-            top: 0; /* Stick to the top */
-            z-index: 1000; /* Ensure the sticky element stays above other content */
-            width: 100vw;
-            display: flex;         /* Use flexbox layout for inline items */
-            justify-content: flex-start;  /* Align items to the left */
-            gap: 1px;             /* Set space between items (adjust as needed) */
-        }
+.edit-button:hover {
+    background-color: #f57c00 !important;
+    border-color: #f57c00 !important;
+    color: white !important; 
+}
 
-        li a {
-            display: block;
-            color: rgb(0, 0, 0);
-            text-align: center;
-            margin: 0px;
-            padding: 10px 15px; /* Adjust padding as needed */
-            text-decoration: none;
-            
-        }
+.notes-button {
+    background-color: #ec6496 !important;
+    border-color: #ec6496 !important;
+    color: white !important;  
+}
 
-        li:first-child {
-            margin-left: 5%;             /* Push the first <li> 10% away from the left */
-        }
+.notes-button:hover {
+    background-color: #d1477a !important;
+    border-color: #d1477a !important;
+    color: white !important;   
+}
 
-        li a:hover {
-            background-color: #00340c;
-            color: whitesmoke;
-        }
+.delete-button {
+    background-color: #f44336 !important;
+    border-color: #f44336 !important;
+    color: white !important;   
+}
 
-        .active {
-            background-color: #aeff00;
-            padding: 10px;
-        }
+.delete-button:hover {
+    background-color: #d32f2f !important;
+    border-color: #d32f2f !important;
+    color: white !important;  
+}
+
+.btn-primary {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+    color: white !important;
+}
+
+/* Fallback for any button that might not have custom classes */
+button {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border: 1px solid #4CAF50 !important;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049 !important;
+    border-color: #45a049 !important;
+}
+
+.empty-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+}
+
+/* Suggestions styling */
+
+.suggestions {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
+    width: 100%;
+    border-radius: 5px;
+    margin-top: 2px;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.fade {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  position: relative;
+}
+
+.fade.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.form-fade {
+  transition: opacity 0.4s ease;
+  opacity: 1;
+}
+
+.form-fade.hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute; /* so the hidden form doesn't take up space */
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+/* Offcanvas styling */
+
+.offcanvas-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 0 !important;
+  z-index: 1040; /* Bootstrap default */
+}
+
+.filter-dropdown {
+  float: left;
+  margin-right: 1rem;
+}
+
+/* Match panel heading style */
+.offcanvas-header h5 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000000;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Match offcanvas body to app look */
+.offcanvas-body {
+  background-color: #fff;
+  padding: 1.5rem;
+  color: #444;
+  font-size: 15px;
+}
+
+/* Style the placeholder text block */
+.offcanvas-body > div {
+  background-color: #f9f9f9;
+  border-left: 4px solid #4CAF50;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Dropdown styling tweaks to fit your theme */
+.filter-dropdown .btn {
+  background-color: #ec6496;
+  color: #fff;
+  border: none;
+}
+
+.filter-dropdown .btn:hover {
+  background-color: #d1477a;
+}
+
+.dropdown-menu .dropdown-item i {
+  margin-right: 6px;
+  color: #4CAF50;
+}
+
+/* Modal styling */
+
+.modal-dialog {
+  margin-top: 2rem;    /* pushes modal down from the very top */
+  margin-bottom: auto; /* removes bottom margin so modal stays near top */
+}
+.modal-content {
+  border-radius: 0.5rem; /* rounded corners for the modal */
+}
+
+.modal-top-centered {
+  position: fixed !important;  /* Changed from absolute to fixed */
+  top: 1rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  margin: 0 !important;
+  max-width: 500px;
+  width: 90%;
+  z-index: 1055;  /* Higher than Bootstrap's default 1050 */
+}
+
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 0vw !important;
+    height: 0vh !important;
+    z-index: 1040; /* Bootstrap default */
+}
+
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+}
+
+.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.card-header h5 {
+    display: flex;
+    align-items: center;
+}
+
+.card-header .material-symbols-outlined {
+    margin-right: 8px;
+    color: #4CAF50;
+    font-size: 20px;
+}
+
+.card.mb-4 {
+  margin-top: 2.5%;
+}
+
+.water-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.water-btn i {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Plant Directory styling */
+
+.plant-directory .card img {
+  width: 75%;
+  height: 75%;
+  border-radius: 10px;
+  object-fit: cover;
+  position: sticky;
+  margin-left: 12.5%;
+}
+
+.plant-directory .card {
+  height: auto;
+  border-radius: 10px;
+  position: sticky;
+  margin-left: 12.5%;
+  margin-right: 12.5%;
+}
+
+.plant-directory.plant-directory{
+   height: auto; 
+   width: auto;
+}
+
+/* Login/Register */
+#btnSignInGoogle:hover {
+  background-color: #f8f8f8;
+  box-shadow: 0 0 8px rgba(219, 68, 55, 0.5);
+}
 
 
+.login-card{
+  margin-top: 2.5%;
+}
 
-        #suggestions {
-            border: 1px solid #ccc;
-            max-height: 150px;
-            overflow-y: auto;
-            position: absolute;
-            width: 200px;
-            background-color: white;
-            z-index: 10;
-        }
-        .suggestion-item {
-            padding: 8px;
-            cursor: pointer;
-        }
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
-        }
