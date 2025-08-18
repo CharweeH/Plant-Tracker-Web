@@ -1,7 +1,8 @@
+// Firestore + Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyAIujG1gUO5qvKVfkRS6T-cKiOqjdV66v4",
@@ -14,41 +15,45 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+const myPropagations = [];
 const authButtonContainer = document.getElementById('authButtonContainer');
 
+// =======================
+// Auth State
+// =======================
 onAuthStateChanged(auth, (user) => {
-    const authButtonContainer = document.getElementById('authButtonContainer');
+  if (user) {
+    console.log("User signed in:", user.uid);
 
-    if (user) {
-        console.log("User signed in:", user.uid);
-
-        // ✅ Update button to "Sign Out"
-        authButtonContainer.innerHTML = `
-            <button class="btn btn-outline-danger" id="signOutBtn">
-                <i class="bi bi-box-arrow-right"></i> Sign Out
-            </button>
-        `;
-
-        document.getElementById('signOutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                console.log("User signed out");
-            } catch (error) {
-                console.error("Sign-out error:", error);
-            }
-        });
-    } else {
+    authButtonContainer.innerHTML = `
+      <button class="btn btn-outline-danger" id="signOutBtn">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    `;
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
         console.log("User signed out");
+      } catch (err) {
+        console.error("Sign-out error:", err);
+      }
+    });
 
-        // ✅ Update button to "Login / Register"
-        if (authButtonContainer) {
-            authButtonContainer.innerHTML = `
-                <a href="authentication.html" class="btn btn-primary">
-                    <i class="bi bi-person-heart"></i> Login / Register
-                </a>
-            `;
-        }
-    }
+    loadPropagations();
+  } else {
+    console.log("User signed out");
+    authButtonContainer.innerHTML = `
+      <a href="authentication.html" class="btn btn-primary">
+        <i class="bi bi-person-heart"></i> Login / Register
+      </a>
+    `;
+
+    myPropagations.length = 0;
+    showPropagations();
+  }
 });
+
