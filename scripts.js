@@ -19,8 +19,6 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const authButtonContainer = document.getElementById('authButtonContainer');
-
 
 async function fetchPlantsFromFirestore() {
   const querySnapshot = await getDocs(collection(db, 'plants'));
@@ -40,32 +38,43 @@ const myPlants = [];
 
 onAuthStateChanged(auth, (user) => {
     const authButtonContainer = document.getElementById('authButtonContainer');
+    const plantDirectoryNav = document.getElementById("plantDirectoryNav");
+    const propagatingNav = document.getElementById("propagatingNav");
 
     if (user) {
         console.log("User signed in:", user.uid);
 
-        // ✅ Update button to "Sign Out"
-        authButtonContainer.innerHTML = `
-            <button class="btn btn-outline-danger" id="signOutBtn">
-                <i class="bi bi-box-arrow-right"></i> Sign Out
-            </button>
-        `;
+        // Show navbar items
+        if (propagatingNav) propagatingNav.classList.remove("d-none");
 
-        document.getElementById('signOutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                console.log("User signed out");
-            } catch (error) {
-                console.error("Sign-out error:", error);
-            }
-        });
+        // Show Sign Out button
+        if (authButtonContainer) {
+            authButtonContainer.innerHTML = `
+                <button class="btn btn-outline-danger" id="signOutBtn">
+                    <i class="bi bi-box-arrow-right"></i> Sign Out
+                </button>
+            `;
 
-        // ✅ Load plants
+            document.getElementById('signOutBtn').addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    console.log("User signed out");
+                } catch (error) {
+                    console.error("Sign-out error:", error);
+                }
+            });
+        }
+
+        // Load plants
         loadPlantsFromFirestore();
+
     } else {
         console.log("User signed out");
 
-        // ✅ Update button to "Login / Register"
+        // Hide navbar items
+        if (propagatingNav) propagatingNav.classList.add("d-none");
+
+        // Show Login/Register button
         if (authButtonContainer) {
             authButtonContainer.innerHTML = `
                 <a href="authentication.html" class="btn btn-primary">

@@ -31,7 +31,6 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("User signed in:", user.uid);
 
-        // ✅ Show "Sign Out" button
         authButtonContainer.innerHTML = `
             <button class="btn btn-outline-danger" id="signOutBtn">
                 <i class="bi bi-box-arrow-right"></i> Sign Out
@@ -49,12 +48,10 @@ onAuthStateChanged(auth, (user) => {
             }
         });
 
-        // ✅ Load propagations
         loadPlantsFromFirestore();
     } else {
         console.log("User signed out");
 
-        // ✅ Show Login button
         if (authButtonContainer) {
             authButtonContainer.innerHTML = `
                 <a href="authentication.html" class="btn btn-primary">
@@ -63,11 +60,10 @@ onAuthStateChanged(auth, (user) => {
             `;
         }
 
-                // ✅ Hide Add Propagation button
         if (addPropagationBtn) addPropagationBtn.style.display = "none";
 
         const container = document.getElementById("propagationContainer");
-        if (container) container.innerHTML = ""; // clear cards
+        if (container) container.innerHTML = "";
     }
 });
 
@@ -79,7 +75,7 @@ async function loadPlantsFromFirestore() {
   if (!user) return;
 
   const container = document.getElementById("propagationContainer");
-  container.innerHTML = ""; // Clear old cards
+  container.innerHTML = "";
 
   const propagationsRef = collection(db, "users", user.uid, "propagations");
   const snapshot = await getDocs(propagationsRef);
@@ -100,8 +96,14 @@ function createPropagationCard(data = {}, docId = null) {
   newPlantCard.classList.add("card", "mt-3");
   newPlantCard.dataset.id = docId || "";
  
-  // Unique ID for collapse element
   const collapseId = "collapse-" + (docId || Date.now());
+  
+  const standardMethods = ["Water","Soil","Air","Other"];
+  const isCustomMethod = data.method && !standardMethods.includes(data.method);
+  
+  const standardHealth = ["Doing well","Needs attention","Growing roots","Other"];
+  const customHealthValues = data.health ? data.health.filter(h => !standardHealth.includes(h)) : [];
+  const hasCustomHealth = customHealthValues.length > 0;
 
   newPlantCard.innerHTML = `
   <div class="card-header d-flex justify-content-between align-items-center" 
@@ -136,26 +138,32 @@ function createPropagationCard(data = {}, docId = null) {
           <div class="row">
             <legend class="col-form-label col-sm-3 pt-0">Method</legend>
             <div class="col-sm-9">
-              ${["water","soil","air","other"].map(method => `
+              ${standardMethods.map(method => `
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="method" value="${method}" 
-                    ${data.method === method ? "checked" : ""}>
+                  <input class="form-check-input method-radio" type="radio" name="method" value="${method}" 
+                    ${data.method === method || (method === "Other" && isCustomMethod) ? "checked" : ""}>
                   <label class="form-check-label">${method}</label>
                 </div>
               `).join("")}
+              <input type="text" class="form-control mt-2 method-other-input" name="methodOther" 
+                value="${isCustomMethod ? data.method : ""}" 
+                placeholder="Please specify..." style="display: ${data.method === "Other" || isCustomMethod ? "block" : "none"};">
             </div>
           </div>
         </fieldset>
         <div class="form-group row mb-2">
           <div class="col-sm-3">Health</div>
           <div class="col-sm-9">
-            ${["Doing well","Needs attention","Growing roots","Other"].map(h => `
+            ${standardHealth.map(h => `
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="health" value="${h}" 
-                  ${data.health?.includes(h) ? "checked" : ""}>
+                <input class="form-check-input health-checkbox" type="checkbox" name="health" value="${h}" 
+                  ${data.health?.includes(h) || (h === "Other" && hasCustomHealth) ? "checked" : ""}>
                 <label class="form-check-label">${h}</label>
               </div>
             `).join("")}
+            <input type="text" class="form-control mt-2 health-other-input" name="healthOther" 
+              value="${hasCustomHealth ? customHealthValues.join(', ') : ''}"
+              placeholder="Please specify..." style="display: ${data.health?.includes("Other") || hasCustomHealth ? "block" : "none"};">
           </div>
         </div>
         <div class="form-group row mb-2">
@@ -166,7 +174,7 @@ function createPropagationCard(data = {}, docId = null) {
         </div>
         <div class="form-group row">
           <div class="col-sm-9 offset-sm-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary btn-sm">
+            <button type="submit" class="btn btn-primary btn-sm save-btn">
               <i class="bi bi-save"></i> Save
             </button>
             <button type="button" class="btn btn-warning btn-sm edit-btn">
@@ -179,6 +187,7 @@ function createPropagationCard(data = {}, docId = null) {
         </div>
       </form>
     </div>
+  </div>
   `;
   return newPlantCard;
 }
@@ -188,65 +197,150 @@ function createPropagationCard(data = {}, docId = null) {
 // =======================
 function attachEventListeners(card, docId = null) {
   const form = card.querySelector("form");
-  const editBtn = card.querySelector(".edit-btn");
-  const deleteBtn = card.querySelector(".delete-btn");
+
+  const newForm = form.cloneNode(true);
+  form.parentNode.replaceChild(newForm, form);
+
+  const newSaveBtn = card.querySelector(".save-btn");
+  const newEditBtn = card.querySelector(".edit-btn");
+  const newDeleteBtn = card.querySelector(".delete-btn");
 
   // Save to Firestore
-  form.addEventListener("submit", async (e) => {
+  newForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    
+    newSaveBtn.disabled = true;
+    newSaveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+    
     const user = auth.currentUser;
-    if (!user) return alert("You must be logged in.");
+    if (!user) {
+      alert("You must be logged in.");
+      newSaveBtn.disabled = false;
+      newSaveBtn.innerHTML = '<i class="bi bi-save"></i> Save';
+      return;
+    }
 
-    const formData = new FormData(form);
+    const formData = new FormData(newForm);
+    
+    // Handle custom method
+    let method = formData.get("method");
+    if (method === "Other") {
+      method = formData.get("methodOther") || "Other";
+    }
+    
+    // Handle custom health
+    let health = formData.getAll("health");
+    const customHealth = formData.get("healthOther");
+    if (health.includes("Other") || (customHealth && customHealth.trim())) {
+      health = health.filter(h => h !== "Other");
+      if (customHealth && customHealth.trim()) {
+        health.push(customHealth.trim());
+      }
+    }
+    
     const data = {
       plantType: formData.get("plantType"),
       plantName: formData.get("plantName"),
       propagationDate: formData.get("propagationDate"),
-      method: formData.get("method"),
-      health: formData.getAll("health"),
+      method: method,
+      health: health,
       notes: formData.get("notes"),
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      if (docId) {
-        // Update existing
-        const docRef = doc(db, "users", user.uid, "propagations", docId);
+      let currentDocId = card.dataset.id;
+      
+      if (currentDocId && currentDocId !== "") {
+        const docRef = doc(db, "users", user.uid, "propagations", currentDocId);
         await updateDoc(docRef, data);
         alert("Propagation updated!");
       } else {
-        // New entry
         const docRef = await addDoc(collection(db, "users", user.uid, "propagations"), data);
         card.dataset.id = docRef.id;
         alert("Propagation saved!");
       }
+      
+      const headerSpan = card.querySelector('.card-header span');
+      headerSpan.innerHTML = `<i class="fi fi-rr-hand-holding-seeding"></i> ${data.plantName || "New Propagation"}`;
+      
     } catch (err) {
       console.error("Error saving:", err);
+      alert("Error saving propagation. Please try again.");
+    } finally {
+      newSaveBtn.disabled = false;
+      newSaveBtn.innerHTML = '<i class="bi bi-save"></i> Save';
     }
   });
 
-  // Edit button
-  editBtn.addEventListener("click", () => {
-    const inputs = form.querySelectorAll("input, textarea");
-    inputs.forEach(input => {
-      if (input.hasAttribute("readonly")) {
-        input.removeAttribute("readonly");
-        input.classList.add("border-warning");
+  // Toggle Other input fields
+  const methodRadios = card.querySelectorAll('.method-radio');
+  const methodOtherInput = card.querySelector('.method-other-input');
+  methodRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'Other') {
+        methodOtherInput.style.display = 'block';
+        methodOtherInput.focus();
       } else {
-        input.setAttribute("readonly", true);
-        input.classList.remove("border-warning");
+        methodOtherInput.style.display = 'none';
+        methodOtherInput.value = '';
       }
     });
   });
 
+  const healthCheckboxes = card.querySelectorAll('.health-checkbox');
+  const healthOtherInput = card.querySelector('.health-other-input');
+  healthCheckboxes.forEach(checkbox => {
+    if (checkbox.value === 'Other') {
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          healthOtherInput.style.display = 'block';
+          healthOtherInput.focus();
+        } else {
+          healthOtherInput.style.display = 'none';
+          healthOtherInput.value = '';
+        }
+      });
+    }
+  });
+
+  // Edit button
+  newEditBtn.addEventListener("click", () => {
+    const inputs = newForm.querySelectorAll("input, textarea");
+    const isEditing = newEditBtn.textContent.trim().includes("Cancel");
+    
+    inputs.forEach(input => {
+      if (isEditing) {
+        input.setAttribute("readonly", true);
+        input.classList.remove("border-warning");
+      } else {
+        input.removeAttribute("readonly");
+        input.classList.add("border-warning");
+      }
+    });
+    
+    newEditBtn.innerHTML = isEditing ? 
+      '<i class="bi bi-pencil"></i> Edit' : 
+      '<i class="bi bi-x-circle"></i> Cancel Edit';
+  });
+
   // Delete button
-  deleteBtn.addEventListener("click", async () => {
+  newDeleteBtn.addEventListener("click", async () => {
     if (!confirm("Delete this propagation?")) return;
+    
     const user = auth.currentUser;
     if (!user) return;
 
-    if (docId) {
-      await deleteDoc(doc(db, "users", user.uid, "propagations", docId));
+    const currentDocId = card.dataset.id;
+    if (currentDocId && currentDocId !== "") {
+      try {
+        await deleteDoc(doc(db, "users", user.uid, "propagations", currentDocId));
+        alert("Propagation deleted!");
+      } catch (err) {
+        console.error("Error deleting:", err);
+        alert("Error deleting propagation.");
+        return;
+      }
     }
     card.remove();
   });
@@ -262,6 +356,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("propagationContainer");
       const newCard = createPropagationCard();
       container.appendChild(newCard);
+      
+      newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const collapse = newCard.querySelector('.collapse');
+      if (collapse) {
+        collapse.classList.add('show');
+      }
+      
       attachEventListeners(newCard);
     });
   }
